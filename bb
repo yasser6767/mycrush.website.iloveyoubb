@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey! Quick Question... ❤️</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #ffe4e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 90%; transition: all 0.5s ease; position: relative; }
+        h1 { color: #d63384; font-size: 1.8rem; margin-bottom: 1.5rem; }
+        .gif-container img { width: 150px; margin-bottom: 1.5rem; border-radius: 10px; }
+        .btn-group { display: flex; justify-content: center; gap: 20px; margin-top: 1rem; position: relative; height: 50px; }
+        button { padding: 10px 25px; font-size: 1.1rem; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
+        #yesBtn { background: #d63384; color: white; }
+        #yesBtn:hover { transform: scale(1.1); }
+        #noBtn { background: #6c757d; color: white; position: absolute; right: 40px; }
+        .error-msg { color: #dc3545; font-weight: bold; margin-top: 15px; display: none; animation: shake 0.3s ease; }
+        .hidden { display: none !important; }
+        input[type="date"] { padding: 12px; width: 100%; border: 2px solid #ffb6c1; border-radius: 10px; font-size: 1rem; outline: none; margin-bottom: 1.5rem; color: #333; }
+        #submitDateBtn { background: #28a745; color: white; width: 100%; }
+        #submitDateBtn:hover { transform: scale(1.03); }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="mainCard">
+        <!-- Step 1: Love Question -->
+        <div id="step1">
+            <div class="gif-container">
+                <img src="https://giphy.com" alt="Cute Bear">
+            </div>
+            <h1>Do you love me? Asking for a friend... Asking for me actually... 😉</h1>
+            <div class="btn-group">
+                <button id="yesBtn" onclick="goToStep2()">Yes!</button>
+                <button id="noBtn" onmouseover="moveNoButton()" onclick="showError()">No</button>
+            </div>
+            <div class="error-msg" id="errorMsg">⚠️ System Error: Invalid selection! Please pick the correct option.</div>
+        </div>
+
+        <!-- Step 2: Pick Date -->
+        <div id="step2" class="hidden">
+            <div class="gif-container">
+                <img src="https://giphy.com" alt="Happy Dance">
+            </div>
+            <h1>Yay! Let's lock it in! 🎉</h1>
+            <p style="color: #666; margin-bottom: 15px;">Pick a perfect day for our date:</p>
+            <input type="date" id="datePicker" required>
+            <button id="submitDateBtn" onclick="sendNotification()">Confirm Date ✨</button>
+        </div>
+        
+        <!-- Step 3: Success Screen -->
+        <div id="step3" class="hidden">
+            <div class="gif-container">
+                <img src="https://giphy.com" alt="Hearts">
+            </div>
+            <h1>It's a Date! ❤️</h1>
+            <p style="color: #666;">I can't wait! The countdown starts now.</p>
+        </div>
+    </div>
+
+    <script>
+        // THIS IS CONFIGURED TO MATCH THE DASHBOARD PERFECTLY
+        const MY_SECRET_CHANNEL = "date_proposal_secure_pipeline_2026"; 
+
+        function moveNoButton() {
+            const noBtn = document.getElementById('noBtn');
+            const x = Math.floor(Math.random() * 160) - 80;
+            const y = Math.floor(Math.random() * 80) - 40;
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+            showError();
+        }
+
+        function showError() {
+            document.getElementById('errorMsg').style.display = 'block';
+        }
+
+        function goToStep2() {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        function sendNotification() {
+            const dateValue = document.getElementById('datePicker').value;
+            if (!dateValue) {
+                alert("Please pick a sweet day first! 🥰");
+                return;
+            }
+
+            const dateObj = new Date(dateValue);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = dateObj.toLocaleDateString('en-US', options);
+
+            fetch(`https://ntfy.sh{MY_SECRET_CHANNEL}`, {
+                method: 'POST',
+                body: `She said YES! 🎉 She picked this date: ${formattedDate}`,
+                headers: {
+                    'Title': '💖 She Accepted Your Date!',
+                    'Priority': 'high',
+                    'Tags': 'heart,partying_face'
+                }
+            })
+            .then(() => {
+                document.getElementById('step2').classList.add('hidden');
+                document.getElementById('step3').classList.remove('hidden');
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Network error, but the response was saved!");
+            });
+        }
+    </script>
+</body>
+</html>
